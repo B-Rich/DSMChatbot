@@ -34,6 +34,7 @@ class trigger():
 def userInput(chat_input):
     # TODO: add Exception for invalid inputs
     # TODO:Using GOOGLE Translate API, normalize expressions
+    chat_input = chat_input.lower()
     nouns = hannanum.pos(chat_input)
     words = []
     for i in range(0, len(nouns)):
@@ -93,7 +94,7 @@ def weatherComponent(time):
 
 def DMSmeal(date, time):
     def DMS_request_meal(date_, time_):
-        pass
+        return "MEAL" + str(date_) + str(time_)
         # TODO: request to DMS meal API
 
     '''
@@ -135,7 +136,6 @@ trigger = trigger()
 def router(processed_text):
     intersections_meal = set(trigger.meal).intersection(set(processed_text))
     select = None
-    print(set(trigger.meal).intersection(set(processed_text)))
     if "weather" in set(processed_text):
         if "today" in (set(trigger.weather).intersection(set(processed_text))):
             return weatherComponent("today")
@@ -150,7 +150,7 @@ def router(processed_text):
                 return weatherComponent("week")
 
 
-    elif ("rice" or "meal" or "breakfast" or "dinner" or "cafeteria") in (set(trigger.meal).intersection(set(processed_text))):
+    elif ("rice" in intersections_meal) or ("meal" in intersections_meal) or ("cafeteria" in intersections_meal):
         if "today" in (set(trigger.meal).intersection(set(processed_text))):
             if "breakfast" in (set(trigger.meal).intersection(set(processed_text))):
                 return DMSmeal("today", 0)
