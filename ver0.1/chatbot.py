@@ -124,11 +124,11 @@ def DMSmeal(date, time):
 
 def DMSouting(date):
     # TODO: request DMS API by par-date
-    pass
+    return "GOING OUT" #Dummy
 
 
 def DMSreturn(stay, return_date, back_date):
-    pass
+    return "RETURN" #Dummy
 
 trigger = trigger()
 
@@ -136,6 +136,9 @@ trigger = trigger()
 def router(processed_text):
     intersections_meal = set(trigger.meal).intersection(set(processed_text))
     select = None
+
+    print(list(set(trigger.DMS_Stay).intersection(set(processed_text)))) #TEST
+
     if "weather" in set(processed_text):
         if "today" in (set(trigger.weather).intersection(set(processed_text))):
             return weatherComponent("today")
@@ -168,7 +171,7 @@ def router(processed_text):
         else:
             return DMSmeal(None, None)
 
-    elif ("outing" in (set(trigger.DMS_Outing).intersection(set(processed_text)))) or (("outing" and "out") in (set(trigger.DMS_Outing).intersection(set(processed_text)))):
+    elif ("outing" in (set(trigger.DMS_Outing).intersection(set(processed_text)))) or (("going" and "out") in (set(trigger.DMS_Outing).intersection(set(processed_text)))):
         # TODO: confirm message to user when else statement
         if ("saturday" in (set(trigger.DMS_Outing).intersection(set(processed_text)))) and ("sunday" not in (set(trigger.DMS_Outing).intersection(set(processed_text)))):
             return DMSouting(0)
@@ -238,7 +241,7 @@ def router(processed_text):
 
         #추가바람
         else:
-            select = random.randint(0, len(trigger.dummy_answer))
+            select = random.randint(0, len(trigger.dummy_answer) - 1)
             return trigger.dummy_answer[select]
 
 
