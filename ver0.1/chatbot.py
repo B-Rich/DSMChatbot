@@ -5,13 +5,13 @@ from urllib.request import Request, urlopen
 from urllib.parse import urlencode, quote_plus
 import json
 import random
-from numba import jit
+
 hannanum = Hannanum()
 
 
-class trigger():
+class Trigger:
     # trigger worlds
-    weather = {"today", "weather", "know", "tomorow", "next", "week"}  # first-class word : weather
+    weather = {"today", "weather", "know", "tomorrow", "next", "week"}  # first-class word : weather
 
     meal = {"cafeteria", "rice", "lunch", "dinner", "breakfast", "morning", "today", "tomorrow", "meal"}  # first-class word : "rice", "lunch", "dinner", "breakfast", "morning",
 
@@ -30,7 +30,6 @@ class trigger():
     ext_2Minsub_01 = {"retraction", "angle", "drop"}  # 자퇴각? / 자퇴 -> 자퇴각!
 
 
-@jit
 def userInput(chat_input):
     # TODO: add Exception for invalid inputs
     # TODO:Using GOOGLE Translate API, normalize expressions
@@ -79,22 +78,20 @@ def weatherComponent(time):
 
         return present()
 
-    elif time is "tomorrow":
-        def tomorrow():
-            return 0
+    elif time is "today":
+        return "TODAY WEATHER"
 
-        return tomorrow()
+    elif time is "tomorrow":
+        return "TOMORROW WEATHER"
+
 
     else:
-        def week():
-            return 0
-
-        return week()
+        return "WEEK WEATHER"
 
 
 def DMSmeal(date, time):
-    def DMS_request_meal(date_, time_):
-        return "MEAL" + str(date_) + str(time_)
+    #Funtional
+    return "MEAL" + str(date) + str(time)
         # TODO: request to DMS meal API
 
     '''
@@ -104,22 +101,7 @@ def DMSmeal(date, time):
               |         |_ None -- select option
               |     
               0 - <time_> (week or month // select option for user)
-    '''
-    if date is "today":
-        if time is 0:
-            return DMS_request_meal(1, 0)  # 아침급식 출력 함수
-        elif time is 1:
-            return DMS_request_meal(1, 1)  # 점심급식 출력
-        elif time is 2:
-            return DMS_request_meal(1, 2)  # 저녁급식 출력
-        else:
-            # TODO: 선택 옵션을 출력하고 급식표 선택 옵션을 보여준다
-            # (전체, 아침, 점심, 저녁) 그리고 None 자리에 파라미터 넘김
-            return DMS_request_meal(1, None)  # 오늘 전체 급식
-    else:
-        # TODO: 선택 옵션을 출력하고 급식표 선택 옵션을 보여준다
-        # (전체, 아침, 점심, 저녁) 그리고 None 자리에 파라미터 넘김
-        return DMS_request_meal(0, None)
+    ''' #DOCSTRING
 
 
 def DMSouting(date):
@@ -130,21 +112,23 @@ def DMSouting(date):
 def DMSreturn(stay, return_date, back_date):
     return "RETURN" #Dummy
 
-trigger = trigger()
+trigger = Trigger()
 
 
 def router(processed_text):
-    intersections_meal = set(trigger.meal).intersection(set(processed_text))
-    select = None
+    intersections_meal = set(Trigger.meal).intersection(set(processed_text))
+    intersections_outing = set(Trigger.DMS_Outing).intersection(set(processed_text))
+    intersections_stay = set(Trigger.DMS_Stay).intersection(set(processed_text))
+    intersections_return = set(Trigger.DMS_Return).intersection(set(processed_text))
+    intersections_meta = set(Trigger.DMS_meta).intersection(set(processed_text))
 
-    print(list(set(trigger.DMS_Stay).intersection(set(processed_text)))) #TEST
 
     if "weather" in set(processed_text):
-        if "today" in (set(trigger.weather).intersection(set(processed_text))):
+        if "today" in (set(Trigger.weather).intersection(set(processed_text))):
             return weatherComponent("today")
-        elif "tomorrow" in (set(trigger.weather).intersection(set(processed_text))):
+        elif "tomorrow" in (set(Trigger.weather).intersection(set(processed_text))):
             return weatherComponent("tomorrow")
-        elif "next" in (set(trigger.weather).intersection(set(processed_text))) or "week" in (set(trigger.weather).intersection(set(processed_text))):
+        elif "next" in (set(Trigger.weather).intersection(set(processed_text))) or "week" in (set(Trigger.weather).intersection(set(processed_text))):
             return weatherComponent("week")
         else:
             if random.randrange(0, 2) == 1:
@@ -154,13 +138,13 @@ def router(processed_text):
 
 
     elif ("rice" in intersections_meal) or ("meal" in intersections_meal) or ("cafeteria" in intersections_meal):
-        if "today" in (set(trigger.meal).intersection(set(processed_text))):
-            if "breakfast" in (set(trigger.meal).intersection(set(processed_text))):
+        if "today" in intersections_meal:
+            if "breakfast" in intersections_meal:
                 return DMSmeal("today", 0)
                 # TODO: Meal DB Parse module - today (naming : DMSMeal(date, time)
-            elif "lunch" in (set(trigger.meal).intersection(set(processed_text))):
+            elif "lunch" in intersections_meal:
                 return DMSmeal("today", 1)
-            elif "dinner" in (set(trigger.meal).intersection(set(processed_text))):
+            elif "dinner" in intersections_meal:
                 return DMSmeal("today", 2)
             else:
                 if random.randrange(0, 2) == 1:
@@ -171,34 +155,41 @@ def router(processed_text):
         else:
             return DMSmeal(None, None)
 
-    elif ("outing" in (set(trigger.DMS_Outing).intersection(set(processed_text)))) or (("going" and "out") in (set(trigger.DMS_Outing).intersection(set(processed_text)))):
+    elif "breakfast" in intersections_meal:
+        return DMSmeal("today", 0)
+    elif "lunch" in intersections_meal:
+        return DMSmeal("today", 1)
+    elif "dinner" in intersections_meal:
+        return DMSmeal("today", 2)
+
+    elif ("outing" in intersections_outing) or (("going" in intersections_outing) and ("out" in intersections_outing)):
         # TODO: confirm message to user when else statement
-        if ("saturday" in (set(trigger.DMS_Outing).intersection(set(processed_text)))) and ("sunday" not in (set(trigger.DMS_Outing).intersection(set(processed_text)))):
+        if ("saturday" in intersections_outing) and ("sunday" not in intersections_outing):
             return DMSouting(0)
-        elif ("saturday" not in (set(trigger.DMS_Outing).intersection(set(processed_text)))) and ("sunday" in (set(trigger.DMS_Outing).intersection(set(processed_text)))):
+        elif ("saturday" not in intersections_outing) and ("sunday" in intersections_outing):
             return DMSouting(1)
-        elif ("saturday" in (set(trigger.DMS_Outing).intersection(set(processed_text))) and ("sunday" in (set(trigger.DMS_Outing).intersection(set(processed_text))))) or ("all" in (set(trigger.DMS_Outing).intersection(set(processed_text)))) or ("both" in (set(trigger.DMS_Outing).intersection(set(processed_text)))):
+        elif ("saturday" in intersections_outing) and ("sunday" in intersections_outing) or ("all" in intersections_outing) or ("both" in intersections_outing):
             return DMSouting(2)
         else:
-            # reauest to user
+            # request to user
             return DMSouting(None)
 
-    elif ("homecoming" or "return" or ("return" and "home") or ("going" and "home") or "leave") in (set(trigger.DMS_Return).intersection(set(processed_text))):
+    elif ("homecoming" in intersections_return) or ("return" in intersections_return) or (("return" in intersections_return) and ("home" in intersections_return)) or (("going" in intersections_return) and ("home" in intersections_return)) or ("leave" in intersections_return):
         # TODO: request options to user
         select = {"return": None, "back": None}
         return DMSreturn(True, select["return"], select["back"])
 
-    elif ("stay" or "residue") in (set(trigger.DMS_Stay).intersection(set(processed_text))):
-        if ("this" and "week") in (set(trigger.DMS_Stay).intersection(set(processed_text))):
+    elif ("stay" in intersections_stay) or ("residue" in intersections_stay):
+        if ("this" in intersections_stay) and ("weekend" in intersections_stay):
             return DMSreturn(False, None, None)
         else:
             #TODO: announce to user that we can do it only this week and request
             return DMSreturn(False, None, None)
 
-    elif ("dormitory" or ("menu" and "show")) in (set(trigger.DMS_meta).intersection(set(processed_text))):
+    elif ("dormitory" in intersections_meta) or (("menu" in intersections_meta) and ("show" in intersections_meta)):
         select = 99
         #TODO: show menu and select menu
-
+        print("DORMITORY SYSTEM")
         if select == 0:
             option = 99
             #TODO: select date 0, 1, 2
@@ -223,26 +214,20 @@ def router(processed_text):
         if "tmdrjf01" in set(processed_text):
             return "그는... 체고.... tmdrjf01은 체고...!"
 
-        elif ("자퇴" or "자퇴각") in set(processed_text):
+        elif ("자퇴" in set(processed_text)) or ("자퇴각" in set(processed_text)):
             option = random.randrange(0, 4)
             if option == 0:
                 return "자퇴각?"
-            elif option == 1:
-                return "니가 나간다고 될것같음?"
-            elif option == 2:
-                return "...병신.."
-            elif option == 3:
-                return "응 아니야..."
             else:
                 return "유성신경정신과의원 - 신성동 · 042-823-8275 \n 은빛사랑정신과의원 - 월평1동 427 · 042-486-2800"
 
-        elif ("젠카이노" or "러브라이브") in set(processed_text):
+        elif "젠카이노" in set(processed_text):
             return "아이도루마스타!!"
 
         #추가바람
         else:
-            select = random.randint(0, len(trigger.dummy_answer) - 1)
-            return trigger.dummy_answer[select]
+            select = random.randint(0, len(Trigger.dummy_answer) - 1)
+            return Trigger.dummy_answer[select]
 
 
 print(router(userInput(input(">>>"))))
