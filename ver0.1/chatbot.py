@@ -44,7 +44,7 @@ def userInput(chat_input):
     return words
 
 
-def weatherComponent(time):
+def weatherc_omponent(time):
     if time is "present":
         def present():
             url = 'http://api.openweathermap.org/data/2.5/weather'
@@ -89,7 +89,7 @@ def weatherComponent(time):
         return "WEEK WEATHER"
 
 
-def DMSmeal(date, time):
+def DMS_meal_component(date, time):
     #Funtional
     return "MEAL" + str(date) + str(time)
         # TODO: request to DMS meal API
@@ -104,12 +104,12 @@ def DMSmeal(date, time):
     ''' #DOCSTRING
 
 
-def DMSouting(date):
+def DMS_outing_component(date):
     # TODO: request DMS API by par-date
     return "GOING OUT" #Dummy
 
 
-def DMSreturn(stay, return_date, back_date):
+def DMS_return_component(stay, return_date, back_date):
     return "RETURN" #Dummy
 
 trigger = Trigger()
@@ -125,66 +125,66 @@ def router(processed_text):
 
     if "weather" in set(processed_text):
         if "today" in (set(Trigger.weather).intersection(set(processed_text))):
-            return weatherComponent("today")
+            return weatherc_omponent("today")
         elif "tomorrow" in (set(Trigger.weather).intersection(set(processed_text))):
-            return weatherComponent("tomorrow")
+            return weatherc_omponent("tomorrow")
         elif "next" in (set(Trigger.weather).intersection(set(processed_text))) or "week" in (set(Trigger.weather).intersection(set(processed_text))):
-            return weatherComponent("week")
+            return weatherc_omponent("week")
         else:
             if random.randrange(0, 2) == 1:
-                return weatherComponent("today")
+                return weatherc_omponent("today")
             else:
-                return weatherComponent("week")
+                return weatherc_omponent("week")
 
 
     elif ("rice" in intersections_meal) or ("meal" in intersections_meal) or ("cafeteria" in intersections_meal):
         if "today" in intersections_meal:
             if "breakfast" in intersections_meal:
-                return DMSmeal("today", 0)
+                return DMS_meal_component("today", 0)
                 # TODO: Meal DB Parse module - today (naming : DMSMeal(date, time)
             elif "lunch" in intersections_meal:
-                return DMSmeal("today", 1)
+                return DMS_meal_component("today", 1)
             elif "dinner" in intersections_meal:
-                return DMSmeal("today", 2)
+                return DMS_meal_component("today", 2)
             else:
                 if random.randrange(0, 2) == 1:
-                    return DMSmeal("today", None)
+                    return DMS_meal_component("today", None)
                 else:
                     #TODO: request to user
-                    return DMSmeal("today", None)
+                    return DMS_meal_component("today", None)
         else:
-            return DMSmeal(None, None)
+            return DMS_meal_component(None, None)
 
     elif "breakfast" in intersections_meal:
-        return DMSmeal("today", 0)
+        return DMS_meal_component("today", 0)
     elif "lunch" in intersections_meal:
-        return DMSmeal("today", 1)
+        return DMS_meal_component("today", 1)
     elif "dinner" in intersections_meal:
-        return DMSmeal("today", 2)
+        return DMS_meal_component("today", 2)
 
     elif ("outing" in intersections_outing) or (("going" in intersections_outing) and ("out" in intersections_outing)):
         # TODO: confirm message to user when else statement
         if ("saturday" in intersections_outing) and ("sunday" not in intersections_outing):
-            return DMSouting(0)
+            return DMS_outing_component(0)
         elif ("saturday" not in intersections_outing) and ("sunday" in intersections_outing):
-            return DMSouting(1)
+            return DMS_outing_component(1)
         elif ("saturday" in intersections_outing) and ("sunday" in intersections_outing) or ("all" in intersections_outing) or ("both" in intersections_outing):
-            return DMSouting(2)
+            return DMS_outing_component(2)
         else:
             # request to user
-            return DMSouting(None)
+            return DMS_outing_component(None)
 
     elif ("homecoming" in intersections_return) or ("return" in intersections_return) or (("return" in intersections_return) and ("home" in intersections_return)) or (("going" in intersections_return) and ("home" in intersections_return)) or ("leave" in intersections_return):
         # TODO: request options to user
         select = {"return": None, "back": None}
-        return DMSreturn(True, select["return"], select["back"])
+        return DMS_return_component(True, select["return"], select["back"])
 
     elif ("stay" in intersections_stay) or ("residue" in intersections_stay):
         if ("this" in intersections_stay) and ("weekend" in intersections_stay):
-            return DMSreturn(False, None, None)
+            return DMS_return_component(False, None, None)
         else:
             #TODO: announce to user that we can do it only this week and request
-            return DMSreturn(False, None, None)
+            return DMS_return_component(False, None, None)
 
     elif ("dormitory" in intersections_meta) or (("menu" in intersections_meta) and ("show" in intersections_meta)):
         select = 99
@@ -193,10 +193,10 @@ def router(processed_text):
         if select == 0:
             option = 99
             #TODO: select date 0, 1, 2
-            return DMSouting(option)
+            return DMS_outing_component(option)
         elif select == 1:
             option = {"return": None, "back": None}
-            return DMSreturn(True, option["return"], option["back"])
+            return DMS_return_component(True, option["return"], option["back"])
         else:
             # ask one more
             # TODO: show menu and select menu
@@ -204,10 +204,10 @@ def router(processed_text):
             if select == 0:
                 option = 99
                 # TODO: select date 0, 1, 2
-                return DMSouting(option)
+                return DMS_outing_component(option)
             elif select == 1:
                 option = {"return": None, "back": None}
-                return DMSreturn(True, option["return"], option["back"])
+                return DMS_return_component(True, option["return"], option["back"])
             else:
                 return 0
     else:
