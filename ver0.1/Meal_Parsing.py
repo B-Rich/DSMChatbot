@@ -8,7 +8,7 @@ t = time.localtime()
 year = str(t.tm_year)
 month = str(t.tm_mon).zfill(2)
 
-#Parse from Nies Meal Information
+#Parse from Neis Meal Information
 url = urllib.request.urlopen("http://stu.dje.go.kr/sts_sci_md00_001.do?schulCode=G100000170&schulCrseScCode=4&schulKndScCode=04&schYm="+year+month)
 soup = BeautifulSoup(url, 'html.parser')
 dsm = soup.find_all('td')
