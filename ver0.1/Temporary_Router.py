@@ -1,17 +1,18 @@
-import fbchat
+from fbchat import log, Client
 import time
 import pickle
 
-with open("./Meal_List/Meal_List.txt", "rb") as f :
-    Meal = pickle.load(f)
-class Bot(fbchat.Client):
+    
+class Bot(Client):
+    with open("./Meal_List/Meal_List.txt", "rb") as f :
+        Meal = pickle.load(f)
+    
+    def onMessage(self, author_id, message, thread_id, thread_type, **kwargs):
+        self.markAsDelivered(author_id, thread_id)
+        self.markAsRead(author_id)
 
-    def __init__(self,email, password, debug=True, user_agent=None):
-        fbchat.Client.__init__(self,email, password, debug, user_agent)
+        log.info("Message from {} in {} ({}): {}".format(author_id, thread_id, thread_type.name, message))
 
-    def on_message(self, mid, author_id, author_name, message, metadata):
-        self.markAsDelivered(author_id, mid) #mark delivered
-        self.markAsRead(author_id) #mark read
         meal = 0
         t = time.localtime()
         day = t.tm_mday
@@ -38,22 +39,29 @@ class Bot(fbchat.Client):
                         if (n > 0 or n < 32) :
                             day = n
                             n = 0
-                        else : self.send(author_id, '올바른 날짜를 입력하세요')
+                        else : self.sendMessage('올바른 날짜를 입력하세요', thread_id=thread_id, thread_type=thread_type)
 
                         if ('월' in message) :
                             index = message.find('월')
                             if (message[index-1]>='0' and message[index-1]<='9') : n = int(message[index-1])
-                            if (message[index-2]>='0' and message[index-2]<'9') : n += int(message[index-2])*10
+                            if (message[index-2]>='1') : n += int(message[index-2])*10
                             if (n > 0 or n < 13) :
                                 mon = str(n).zfill(2)
                                 n = 0
-                        else : self.send(author_id, '올바른 월을 입력하세요')
+                        else : self.sendMessage('올바른 날짜를 입력하세요', thread_id=thread_id, thread_type=thread_type)
+
+                        
 
                     try :
                         if (meal == 0) :
-                            self.send(author_id, Meal["2017"][mon][day][1]+Meal["2017"][mon][day][2]+Meal["2017"][mon][day][3])
+                            self.sendMessage(self.Meal[mon][day][1]+self.Meal[mon][day][2]+self.Meal[mon][day][3], thread_id=thread_id, thread_type=thread_type)
+
                         else :
-                            self.send(author_id, Meal["2017"][mon][day][meal])
+                            self.sendMessage(self.Meal[mon][day][meal], thread_id=thread_id, thread_type=thread_type)
+
+                            
                     except IndexError:
-                        self.send(author_id, '정보가 없습니다.')
+                        self.sendMessage('정보가 없습니다.', thread_id=thread_id, thread_type=thread_type)
+                        
                     message = ''
+
