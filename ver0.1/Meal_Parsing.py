@@ -23,5 +23,8 @@ for i in range(len(day)-1, -1, -1) :
     if (day[i] == [''] or day[i] == [' ']) : del day[i]
 
 #Save data use pickle
-with open("./Meal_List/Meal_"+year+"_"+month+".txt", "wb") as f :
-    pickle.dump(day, f)
+with open("./Meal_List/Meal_List.txt", "rb") as f :
+    Meal = pickle.load(f)
+Meal[month] = day
+with open("./Meal_List/Meal_List.txt", "wb") as f :
+    pickle.dump(Meal, f)
