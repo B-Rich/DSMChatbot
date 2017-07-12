@@ -19,7 +19,7 @@ daily = [a.split('<td><div>') for a in week]
 day = [''.join(a).replace('[','SPL[').replace('<td class="last"><div>', '').split('SPL') for a in daily]
 
 #Delete blank
-for i in range(len(day)-1, -1, -1) :
+for i in range(len(day)-1, 0, -1) :
     if (day[i] == [''] or day[i] == [' ']) : del day[i]
 
 #Save data use pickle

@@ -1,6 +1,8 @@
 from fbchat import log, Client
 import time
 import pickle
+from Return_Home import Return_Home as RH
+from Going_Out import Going_Out as GO
 
     
 class Bot(Client):
@@ -44,11 +46,11 @@ class Bot(Client):
                         if ('월' in message) :
                             index = message.find('월')
                             if (message[index-1]>='0' and message[index-1]<='9') : n = int(message[index-1])
-                            if (message[index-2]>='1') : n += int(message[index-2])*10
+                            if (message[index-2]>='0' and message[index-2]<'9') : n += int(message[index-2])*10
                             if (n > 0 or n < 13) :
                                 mon = str(n).zfill(2)
                                 n = 0
-                        else : self.sendMessage('올바른 날짜를 입력하세요', thread_id=thread_id, thread_type=thread_type)
+                            else : self.sendMessage('올바른 날짜를 입력하세요', thread_id=thread_id, thread_type=thread_type)
 
                         
 
@@ -65,3 +67,23 @@ class Bot(Client):
                         
                     message = ''
 
+            if ('금요귀가' in message or '금요 귀가' in message or
+                '토요귀가' in message or '토요 귀가' in message or
+                '토요귀사' in message or '토요 귀사' in message or '잔류' in message) :
+                if ('금요귀가' in message or '금요 귀가' in message) : status = 1
+                elif ('토요귀가' in message or '토요 귀가' in message) : status = 2
+                elif ('토요귀사' in message or '토요 귀사' in message) : status = 3
+                elif ('잔류' in message) : status = 4
+                RH_Info = message.split('\n')
+                RH(RH_Info[0], RH_Info[1], status)
+                self.sendMessage('잔류 신청이 완료되었습니다.', thread_id=thread_id, thread_type=thread_type)
+
+            if ('외출' in message) :
+                sun = 0
+                sat = 0
+                if ('일요' in message) : sun = 1
+                if ('토요' in message) : sat = 1
+                GO_Info = message.split('\n')
+                GO(GO_Info[0], GO_Info[1], sat, sun)
+                self.sendMessage('외출 신청이 완료되었습니다.', thread_id=thread_id, thread_type=thread_type)
+            
