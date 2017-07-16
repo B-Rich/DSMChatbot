@@ -1,5 +1,5 @@
-import Temporary_Router
+import chatbotRouter
 from getpass import getpass
 
-bot = Temporary_Router.Bot("kshr2d2@outlook.com", getpass('password : '))
+bot = chatbotRouter.Bot("kshr2d2@outlook.com", getpass('password : '))
 bot.listen()
