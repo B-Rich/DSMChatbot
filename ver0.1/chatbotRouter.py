@@ -6,6 +6,7 @@ from Return_Home import Return_Home as RH
 from Going_Out import Going_Out as GO   
 
 class Bot(Client):
+    Black_List = []
     with open("./Meal_List/Meal_List.txt", "rb") as f :
         Meal = pickle.load(f)
     
@@ -24,9 +25,10 @@ class Bot(Client):
         weekWeather = WH.week()
         tommorowWeather = WH.week()[1]
         
-        if str(author_id) != str(self.uid):
-            if ('씨발' in message or '개새끼' in message or '병신' in message) :
-                self.sendMessage('이게 미쳤구나?', thread_id=thread_id, thread_type=thread_type)
+        if author_id != self.uid and not (thread_id in self.Black_List):
+            if ('시발' in message or '씨발' in message or '개새끼' in message or '병신' in message) :
+                self.sendMessage('블랙리스트에 추가되었습니다.', thread_id=thread_id, thread_type=thread_type)
+                self.Black_List.append(thread_id)
             elif ('아침' in message or '점심'in message or '저녁' in message or
                 '조식' in message or '중식' in message or '석식' in message or
                   '밥' in message or'급식' in message):
@@ -77,8 +79,15 @@ class Bot(Client):
                 elif ('토요귀사' in message or '토요 귀사' in message) : status = 3
                 elif ('잔류' in message) : status = 4
                 RH_Info = message.split('\n')
-                RH(RH_Info[0], RH_Info[1], status)
-                self.sendMessage('잔류 신청이 완료되었어요.', thread_id=thread_id, thread_type=thread_type)
+                Req_Result = RH(RH_Info[0], RH_Info[1], status)
+                if Req_Result == 0 :
+                    self.sendMessage('신청이 완료되었어요.', thread_id=thread_id, thread_type=thread_type)
+                elif Req_Result == 1 :
+                    self.sendMessage('신청을 할 수 없는 시간이에요.', thread_id=thread_id, thread_type=thread_type)
+                elif Req_Result == 2 :
+                    self.sendMessage('아이디, 비밀번호를 확인해 주세요.', thread_id=thread_id, thread_type=thread_type)
+                else :
+                    self.sendMessage('신청을 실패했어요.', thread_id=thread_type, thread_type=thread_type)
 
             elif ('외출' in message) :
                 sun = 0
@@ -93,26 +102,22 @@ class Bot(Client):
                 GO(GO_Info[0], GO_Info[1], sat, sun)
                 self.sendMessage('외출 신청이 완료되었어요,', thread_id=thread_id, thread_type=thread_type)
 
-            elif('대마' in message or '서비스' in message or '뮤직' in message or '라우드' in message) :
+            elif('대마' in message) :
                 if ('서비스'in message) :
-                    self.sendMessage('대마서비스는요', thread_id=thread_id, thread_type=thread_type)
-                    self.sendMessage('http://envy.iptime.org/dsm/', thread_id=thread_id, thread_type=thread_type)
+                    self.sendMessage('대마서비스는요\nhttp://envy.iptime.org/dsm/', thread_id=thread_id, thread_type=thread_type)
                 elif ('뮤직' in message) :
-                    self.sendMessage('대마뮤직은요', thread_id=thread_id, thread_type=thread_type)
-                    self.sendMessage('http://envy.iptime.org/dsm/music/', thread_id=thread_id, thread_type=thread_type)
+                    self.sendMessage('대마뮤직은요\nhttp://envy.iptime.org/dsm/music/', thread_id=thread_id, thread_type=thread_type)
                 elif ('라우드' in message) :
                     self.sendMessage('대마라우드는 내부망만 접속이 가능한것 아시죠?', thread_id=thread_id, thread_type=thread_type)
-                else :
-                    self.sendMessage('서비스요? 아니면 뮤직이요? 그것도 아니라면 라.우.드.??', thread_id=thread_id, thread_type=thread_type)
 
             elif('학교' in message) :
                 if ('카페' in message) :
-                    self.sendMessage('학교 카페 : http://cafe.naver.com/onlyonedsm', thread_id=thread_id, thread_type=thread_type)
+                    self.sendMessage('학교 카페는요\nhttp://cafe.naver.com/onlyonedsm', thread_id=thread_id, thread_type=thread_type)
                 elif ('밴드' in message) :
-                    self.sendMessage('학교 밴드 : http://band.us/#!/band/58570544', thread_id=thread_id, thread_type=thread_type)
+                    self.sendMessage('학교 밴드는요\nhttp://band.us/#!/band/58570544', thread_id=thread_id, thread_type=thread_type)
 
             elif ('학생회' in message and ('깃헙' in message or '깃허브' in message or 'github' in message)) :
-                self.sendMessage('학생회 깃허브 : https://github.com/DSM-HS/StudentCouncil', thread_id=thread_id, thread_type=thread_type)
+                self.sendMessage('학생회 깃허브는요\nhttps://github.com/DSM-HS/StudentCouncil', thread_id=thread_id, thread_type=thread_type)
 
             elif ('날씨' in message) :
                 if ('오늘' in message or '현재' in message or '지금' in message) :
